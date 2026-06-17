@@ -1,6 +1,6 @@
 # Pasajes de Bus — Proyecto Final Programación Web
 
-## Requisitos completados (23/23)
+## Requisitos completados
 
 ### Generales (GEN)
 - **GEN-01**: Estructura del repositorio y README ejecutable
