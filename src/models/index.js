@@ -1,12 +1,11 @@
-const sequelize = require('../config/database');
-const Usuario = require('./Usuario');
-const Viaje = require('./Viaje');
-const Pasaje = require('./Pasaje');
+const express = require('express');
+const authRoutes = require('./authRoutes');
+const viajeRoutes = require('./viajeRoutes');
 
-Usuario.hasMany(Pasaje);
-Pasaje.belongsTo(Usuario);
+const router = express.Router();
 
-Viaje.hasMany(Pasaje);
-Pasaje.belongsTo(Viaje);
+router.get('/health', (req, res) => res.json({ status: 'ok' }));
+router.use('/auth', authRoutes);
+router.use('/viajes', viajeRoutes);
 
-module.exports = {sequelize, Usuario, Viaje, Pasaje};
+module.exports = router;
