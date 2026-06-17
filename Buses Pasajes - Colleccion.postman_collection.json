@@ -1,0 +1,353 @@
+{
+  "info": {
+    "_postman_id": "f50c275c-328d-4134-9891-512a63ff5343",
+    "name": "Buses Pasajes - Colleccion",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54780595",
+    "_collection_link": "https://go.postman.co/collection/54780595-f50c275c-328d-4134-9891-512a63ff5343?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Pasajes",
+      "item": [
+        {
+          "name": "GET /pasajes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{json_web_token_0gui}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/pasajes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "pasajes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /pasajes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{json_web_token_0gui}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"viajeId\": 1,\r\n    \"asiento\": 12\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/pasajes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "pasajes"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Viajes",
+      "item": [
+        {
+          "name": "GET /viajes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{json_web_token_0gui}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/viajes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "viajes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /viajes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{supabase_service_role_api_key_0gui}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"origen\": \"Buenos Aires\",\r\n    \"destino\": \"Cordoba\",\r\n    \"fecha\": \"2026-07-01\",\r\n    \"precio\": 15000,\r\n    \"asientosTotal\": 40\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/viajes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "viajes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /viajes/2",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{bearer_token_04rd}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/viajes/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "viajes",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /viajes/1",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{bearer_token_04rd}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"precio\": 16000,\r\n    \"origen\": \"Buenos Aires\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/viajes/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "viajes",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /viajes/2",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{supabase_service_role_api_key_0gui}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/viajes/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "viajes",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{bearer_token_0xbj}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"cami123@gmail.com\",\r\n    \"password\": \"iwuvjill\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth Register",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"nombre\": \"Usuario\",\r\n    \"email\": \"test@example.com\",\r\n    \"password\": \"123456\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/auth/register",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Me",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{supabase_service_role_api_key_0epo}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/auth/me?=",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "auth",
+            "me"
+          ],
+          "query": [
+            {
+              "key": "",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "bearer_token_0xbj",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_09k3",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_16bb",
+      "secret": true
+    },
+    {
+      "key": "supabase_service_role_api_key_0epo",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_0gui",
+      "secret": true
+    },
+    {
+      "key": "bearer_token_04rd",
+      "secret": true
+    },
+    {
+      "key": "supabase_service_role_api_key_0gui",
+      "secret": true
+    }
+  ]
+}
