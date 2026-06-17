@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionar Viajes</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f7f9; margin: 0; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+    h1 { background: #007bff; color: white; padding: 20px; margin: 0; text-align: center; }
+    .controls { padding: 15px; background: #f8f9fa; display: flex; gap: 10px; flex-wrap: wrap; }
+    button { padding: 12px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .btn-blue { background: #007bff; color: white; }
+    .btn-green { background: #28a745; color: white; }
+    .btn-red { background: #dc3545; color: white; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #343a40; color: white; }
+    .form-container { padding: 25px; background: #f8f9fa; display: none; }
+    input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
+    .message { padding: 12px; margin: 10px 15px; border-radius: 8px; }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Gestionar Viajes</h1>
+    
+    <div class="controls">
+      <button onclick="loadViajes()" class="btn-blue">Cargar Viajes</button>
+      <button onclick="showCreateForm()" class="btn-green">+ Nuevo Viaje</button>
+      <button onclick="goToMenu()" class="btn-blue">Volver al Menú</button>
+      <button onclick="logout()" class="btn-red">Cerrar Sesión</button>
+    </div>
+
+    <div id="message" class="message" style="display:none;"></div>
+
+    <!-- Form -->
+    <div id="formContainer" class="form-container">
+      <h2 id="formTitle">Nuevo Viaje</h2>
+      <input type="hidden" id="viajeId">
+      <input type="text" id="origen" placeholder="Origen" required>
+      <input type="text" id="destino" placeholder="Destino" required>
+      <input type="datetime-local" id="fecha" required>
+      <input type="number" id="precio" step="0.01" placeholder="Precio ($)" required>
+      <input type="number" id="asientosTotal" value="40" placeholder="Asientos totales">
+
+      <button onclick="saveViaje()" class="btn-green">Guardar</button>
+      <button onclick="hideForm()" class="btn-blue">Cancelar</button>
+    </div>
+
+    <div id="content"></div>
+  </div>
+
+  <script>
+    function getToken() { return window.location.hash.substring(1); }
+
+    function showMessage(text, success) {
+      const msg = document.getElementById('message');
+      msg.textContent = text;
+      msg.className = `message ${success ? 'success' : 'error'}`;
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 5000);
+    }
+
+    function goToMenu() {
+      const token = getToken();
+      window.location.href = token ? `menu.html#${token}` : 'index.html';
+    }
+
+    function logout() { window.location.href = 'index.html'; }
+
+    async function loadViajes() {
+      const token = getToken();
+      if (!token) return showMessage('Sesión inválida', false);
+
+      try {
+        const res = await fetch('http://localhost:3000/viajes', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (!data.success) return showMessage(data.message || 'Error', false);
+
+        let html = `<h2 style="padding:15px">Viajes Disponibles (${data.data.length})</h2>
+          <table><tr><th>ID</th><th>Origen</th><th>Destino</th><th>Fecha</th><th>Precio</th><th>Asientos</th><th>Acciones</th></tr>`;
+
+        data.data.forEach(v => {
+          html += `<tr>
+            <td>${v.id}</td>
+            <td>${v.origen}</td>
+            <td>${v.destino}</td>
+            <td>${new Date(v.fecha).toLocaleString('es-AR')}</td>
+            <td>$${parseFloat(v.precio).toFixed(2)}</td>
+            <td>${v.asientosTotal || 40}</td>
+            <td>
+              <button onclick="editViaje(${v.id},'${v.origen}','${v.destino}','${v.fecha}',${v.precio},${v.asientosTotal||40})" class="btn-blue">Editar</button>
+              <button onclick="deleteViaje(${v.id})" class="btn-red">Eliminar</button>
+            </td>
+          </tr>`;
+        });
+        html += '</table>';
+        document.getElementById('content').innerHTML = html;
+      } catch(e) {
+        showMessage('Error de conexión', false);
+      }
+    }
+
+    function showCreateForm() {
+      document.getElementById('formTitle').textContent = 'Nuevo Viaje';
+      document.getElementById('viajeId').value = '';
+      document.getElementById('origen').value = '';
+      document.getElementById('destino').value = '';
+      document.getElementById('fecha').value = '';
+      document.getElementById('precio').value = '';
+      document.getElementById('asientosTotal').value = '40';
+      document.getElementById('formContainer').style.display = 'block';
+    }
+
+    function editViaje(id, origen, destino, fecha, precio, asientos) {
+      document.getElementById('formTitle').textContent = `Editar Viaje #${id}`;
+      document.getElementById('viajeId').value = id;
+      document.getElementById('origen').value = origen;
+      document.getElementById('destino').value = destino;
+      document.getElementById('fecha').value = new Date(fecha).toISOString().slice(0,16);
+      document.getElementById('precio').value = precio;
+      document.getElementById('asientosTotal').value = asientos;
+      document.getElementById('formContainer').style.display = 'block';
+    }
+
+    async function saveViaje() {
+      const token = getToken();
+      const id = document.getElementById('viajeId').value;
+      const body = {
+        origen: document.getElementById('origen').value.trim(),
+        destino: document.getElementById('destino').value.trim(),
+        fecha: document.getElementById('fecha').value,
+        precio: parseFloat(document.getElementById('precio').value),
+        asientosTotal: parseInt(document.getElementById('asientosTotal').value) || 40
+      };
+
+      if (!body.origen || !body.destino || !body.fecha || isNaN(body.precio)) {
+        return showMessage('Completa los campos obligatorios', false);
+      }
+
+      try {
+        const res = await fetch(id ? `http://localhost:3000/viajes/${id}` : 'http://localhost:3000/viajes', {
+          method: id ? 'PUT' : 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        showMessage(data.success ? 'Guardado correctamente' : data.message, data.success);
+        if (data.success) { hideForm(); loadViajes(); }
+      } catch(e) { showMessage('Error al guardar', false); }
+    }
+
+    async function deleteViaje(id) {
+      if (!confirm('¿Eliminar viaje?')) return;
+      const token = getToken();
+      try {
+        const res = await fetch(`http://localhost:3000/viajes/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        showMessage(data.success ? 'Eliminado' : data.message, data.success);
+        if (data.success) loadViajes();
+      } catch(e) { showMessage('Error al eliminar', false); }
+    }
+
+    function hideForm() {
+      document.getElementById('formContainer').style.display = 'none';
+    }
+
+    window.onload = loadViajes;
+  </script>
+</body>
+</html>

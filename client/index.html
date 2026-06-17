@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pasajes de Bus</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 40px; }
+    .container { max-width: 420px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); text-align: center; }
+    input { width: 90%; padding: 14px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+    button { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    .btn-blue { background: #007bff; color: white; }
+    .btn-gray { background: #6c757d; color: white; }
+    .message { padding: 12px; border-radius: 8px; margin: 15px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Pasajes de Bus</h1>
+
+    <div id="loginForm">
+      <h2>Iniciar Sesión</h2>
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Contraseña">
+      <button onclick="login()" class="btn-blue">Iniciar Sesión</button>
+      <button onclick="showRegister()" class="btn-gray">Registrarse</button>
+    </div>
+
+    <div id="registerForm" style="display:none;">
+      <h2>Registrarse</h2>
+      <input type="text" id="regNombre" placeholder="Nombre">
+      <input type="email" id="regEmail" placeholder="Email">
+      <input type="password" id="regPassword" placeholder="Contraseña">
+      <button onclick="register()" class="btn-blue">Registrarse</button>
+      <button onclick="showLogin()" class="btn-gray">Volver</button>
+    </div>
+
+    <div id="message" class="message" style="display:none;"></div>
+  </div>
+
+  <script>
+    function showMessage(txt, success) {
+      const el = document.getElementById('message');
+      el.style.display = 'block';
+      el.style.background = success ? '#d4edda' : '#f8d7da';
+      el.style.color = success ? '#155724' : '#721c24';
+      el.textContent = txt;
+    }
+
+    function showLogin() {
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('registerForm').style.display = 'none';
+    }
+
+    function showRegister() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+    }
+
+    async function login() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!email || !password) return showMessage('Email y contraseña requeridos', false);
+
+      try {
+        const res = await fetch('http://localhost:3000/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (data.success && data.data.accessToken) {
+          showMessage('Login exitoso', true);
+          setTimeout(() => {
+            window.location.href = `menu.html#${data.data.accessToken}`;
+          }, 800);
+        } else {
+          showMessage(data.message || 'Credenciales inválidas', false);
+        }
+      } catch(e) {
+        showMessage('Error de conexión', false);
+      }
+    }
+
+    async function register() {
+      const nombre = document.getElementById('regNombre').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value.trim();
+
+      if (!nombre || !email || !password) return showMessage('Todos los campos son obligatorios', false);
+
+      try {
+        const res = await fetch('http://localhost:3000/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showMessage('Registro exitoso. Inicia sesión.', true);
+          setTimeout(showLogin, 1500);
+        } else {
+          showMessage(data.message || 'Error', false);
+        }
+      } catch(e) {
+        showMessage('Error de conexión', false);
+      }
+    }
+  </script>
+</body>
+</html>

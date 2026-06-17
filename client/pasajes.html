@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Pasajes</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f7f9; margin: 0; padding: 20px; }
+    .container { max-width: 1100px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+    h1 { background: #007bff; color: white; padding: 20px; margin: 0; text-align: center; }
+    .controls { padding: 15px; background: #f8f9fa; display: flex; gap: 10px; flex-wrap: wrap; }
+    button { padding: 12px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .btn-blue { background: #007bff; color: white; }
+    .btn-green { background: #28a745; color: white; }
+    .btn-red { background: #dc3545; color: white; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #343a40; color: white; }
+    .form-container { padding: 25px; background: #f8f9fa; display: none; margin: 15px; border-radius: 8px; }
+    input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+    .message { padding: 12px; margin: 10px 15px; border-radius: 8px; }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mis Pasajes</h1>
+    
+    <div class="controls">
+      <button onclick="loadPasajes()" class="btn-blue">Mis Pasajes</button>
+      <button onclick="showBuyForm()" class="btn-green">Comprar Pasaje</button>
+      <button onclick="goToMenu()" class="btn-blue">Volver al Menú</button>
+      <button onclick="logout()" class="btn-red">Cerrar Sesión</button>
+    </div>
+
+    <div id="message" class="message" style="display:none;"></div>
+
+    <!-- Buy Form -->
+    <div id="buyForm" class="form-container">
+      <h2>Comprar Nuevo Pasaje</h2>
+      
+      <label>Viaje:</label>
+      <select id="viajeId" required></select>
+      
+      <label>Número de Asiento:</label>
+      <input type="number" id="asiento" placeholder="Ej: 15" required>
+      
+      <button onclick="buyPasaje()" class="btn-green">Confirmar Compra</button>
+      <button onclick="hideBuyForm()" class="btn-blue">Cancelar</button>
+    </div>
+
+    <div id="content"></div>
+  </div>
+
+  <script>
+    function getToken() { return window.location.hash.substring(1); }
+
+    function showMessage(text, success) {
+      const msg = document.getElementById('message');
+      msg.textContent = text;
+      msg.className = `message ${success ? 'success' : 'error'}`;
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 5000);
+    }
+
+    function goToMenu() {
+      const token = getToken();
+      window.location.href = token ? `menu.html#${token}` : 'index.html';
+    }
+
+    function logout() { window.location.href = 'index.html'; }
+
+    async function loadAvailableViajes() {
+      const token = getToken();
+      const select = document.getElementById('viajeId');
+      select.innerHTML = '<option value="">Cargando viajes...</option>';
+
+      try {
+        const res = await fetch('http://localhost:3000/viajes', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        select.innerHTML = '<option value="">Selecciona un viaje...</option>';
+        if (data.success && data.data) {
+          data.data.forEach(v => {
+            const option = document.createElement('option');
+            option.value = v.id;
+            option.textContent = `#${v.id} - ${v.origen} → ${v.destino} (${new Date(v.fecha).toLocaleDateString()})`;
+            select.appendChild(option);
+          });
+        }
+      } catch (e) {
+        select.innerHTML = '<option value="">Error al cargar viajes</option>';
+      }
+    }
+
+    function showBuyForm() {
+      document.getElementById('buyForm').style.display = 'block';
+      loadAvailableViajes();
+    }
+
+    function hideBuyForm() {
+      document.getElementById('buyForm').style.display = 'none';
+    }
+
+    async function loadPasajes() {
+      const token = getToken();
+      if (!token) return showMessage('Sesión inválida', false);
+
+      try {
+        const res = await fetch('http://localhost:3000/pasajes', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        let html = `<h2 style="padding:15px">Mis Pasajes (${data.data ? data.data.length : 0})</h2>`;
+        if (data.data && data.data.length > 0) {
+          html += `<table><tr><th>ID</th><th>Viaje ID</th><th>Asiento</th><th>Estado</th></tr>`;
+          data.data.forEach(p => {
+            html += `<tr><td>${p.id}</td><td>${p.viajeId}</td><td>${p.asiento}</td><td>${p.estado}</td></tr>`;
+          });
+          html += `</table>`;
+        } else {
+          html += `<p style="padding:30px; text-align:center; color:#666;">Aún no tienes pasajes.</p>`;
+        }
+        document.getElementById('content').innerHTML = html;
+      } catch (e) {
+        showMessage('Error al cargar pasajes', false);
+      }
+    }
+
+    async function buyPasaje() {
+      const token = getToken();
+      if (!token) return;
+
+      const viajeId = parseInt(document.getElementById('viajeId').value);
+      const asiento = parseInt(document.getElementById('asiento').value);
+
+      if (!viajeId || !asiento) {
+        return showMessage('Selecciona un viaje y número de asiento', false);
+      }
+
+      try {
+        const res = await fetch('http://localhost:3000/pasajes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ viajeId, asiento })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showMessage('Pasaje comprado exitosamente', true);
+          hideBuyForm();
+          loadPasajes();
+        } else {
+          showMessage(data.message || 'Error al comprar pasaje', false);
+        }
+      } catch (e) {
+        showMessage('Error de conexión al servidor', false);
+      }
+    }
+
+    window.onload = loadPasajes;
+  </script>
+</body>
+</html>

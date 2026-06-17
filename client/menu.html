@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menú - Pasajes de Bus</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 40px; text-align: center; }
+    .card { max-width: 420px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+    button { 
+      display: block; width: 100%; padding: 16px; margin: 12px 0; 
+      font-size: 18px; border: none; border-radius: 10px; cursor: pointer;
+    }
+    .btn-blue { background: #007bff; color: white; }
+    .btn-red { background: #dc3545; color: white; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Pasajes de Bus</h1>
+    <p id="status" style="font-size:18px; margin:20px 0;">Verificando sesión...</p>
+
+    <button onclick="goTo('viajes.html')" class="btn-blue">Gestionar Viajes</button>
+    <button onclick="goTo('pasajes.html')" class="btn-blue">Gestionar Pasajes</button>
+    <button onclick="logout()" class="btn-red">Cerrar Sesión</button>
+  </div>
+
+  <script>
+    function getTokenFromUrl() {
+      return window.location.hash.substring(1);
+    }
+
+    function goTo(page) {
+      const token = getTokenFromUrl();
+      if (token) {
+        window.location.href = `${page}#${token}`;
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function logout() {
+      window.location.href = 'index.html';
+    }
+
+    window.onload = function() {
+      const token = getTokenFromUrl();
+      if (token) {
+        document.getElementById('status').innerHTML = 'Sesión activa';
+      } else {
+        document.getElementById('status').innerHTML = 'No hay sesión activa';
+        setTimeout(() => window.location.href = 'index.html', 1500);
+      }
+    };
+  </script>
+</body>
+</html>
